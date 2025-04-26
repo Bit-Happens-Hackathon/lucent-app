@@ -45,6 +45,20 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 20), // Add some top padding
+          Center(
+            child: Container(
+              width: 150, // Increased size
+              height: 150, // Increased size
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage('assets/ceec.JPG'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16.0),
@@ -56,12 +70,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
                     padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
+                      color: AppColors.messagePurple,
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Text(
                       _messages[index],
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: AppColors.background),
                     ),
                   ),
                 );
@@ -76,7 +90,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      padding: EdgeInsets.fromLTRB(12.0, 8.0, 12.0,
+          MediaQuery.of(context).size.height * 0.05), // 10% bottom padding
       child: Row(
         children: [
           Expanded(
@@ -91,7 +106,16 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24.0),
-                  borderSide: BorderSide.none,
+                  borderSide: const BorderSide(color: AppColors.primaryGreen),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24.0),
+                  borderSide: const BorderSide(color: AppColors.primaryGreen),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24.0),
+                  borderSide:
+                      const BorderSide(color: AppColors.primaryGreen, width: 2),
                 ),
               ),
               onSubmitted: _handleSubmitted,
@@ -99,12 +123,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           ),
           const SizedBox(width: 8.0),
           Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade700,
+            decoration: const BoxDecoration(
+              color: AppColors.primaryGreen,
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.mic, color: Colors.white),
+              icon: const Icon(Icons.mic, color: AppColors.background),
               onPressed: () {
                 // Add voice input handling later
               },
