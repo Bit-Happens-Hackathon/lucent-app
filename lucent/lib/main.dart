@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'screens/chatbot_screen.dart';
+import 'screens/resources_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +35,11 @@ class MyApp extends StatelessWidget {
         useMaterial3: false,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      home: const ChatbotScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const ChatbotScreen(),
+        '/resources': (context) => const ResourcesScreen(),
+      },
     );
   }
 }

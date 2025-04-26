@@ -47,16 +47,54 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         children: [
           const SizedBox(height: 20), // Add some top padding
           Center(
-            child: Container(
-              width: 150, // Increased size
-              height: 150, // Increased size
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(
-                  image: AssetImage('assets/ceec.JPG'),
-                  fit: BoxFit.cover,
+            child: Column(
+              children: [
+                Container(
+                  width: 150,
+                  height: 150,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: AssetImage('assets/ceec.JPG'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 16),
+                const Divider(
+                  color: Colors.grey,
+                  thickness: 1,
+                  indent: 32,
+                  endIndent: 32,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Placeholder words because Kade told me so!!!',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/resources');
+                  },
+                  child: const Text(
+                    'Resources',
+                    style: TextStyle(
+                      color: AppColors.primaryGreen,
+                      fontSize: 16,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Divider(
+                  color: Colors.grey,
+                  thickness: 1,
+                  indent: 32,
+                  endIndent: 32,
+                ),
+              ],
             ),
           ),
           Expanded(
