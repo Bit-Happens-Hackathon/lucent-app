@@ -71,6 +71,30 @@ class _sign_up_screenState extends State<sign_up_screen> {
     );
   }
 
+  Widget _buildTextField(TextEditingController controller, String hintText,
+      {bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        cursorColor: AppColors.primaryBlue, 
+        decoration: InputDecoration(
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
+          ),
+          border: const OutlineInputBorder(),
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.white70),
+        ),
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,151 +108,59 @@ class _sign_up_screenState extends State<sign_up_screen> {
         ),
       ),
       body: SingleChildScrollView(
-        // Add this wrapper
         child: Column(
           children: [
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(40.0),
-                child: SizedBox(height: 40),
-              ),
-            ),
+            const SizedBox(height: 40),
             const Text(
               'Create Account',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 40,
-                color: Colors.white,
+                color: AppColors.primaryBlue,
               ),
             ),
-            Center(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-                child: TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter your full name',
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-                child: TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter your email',
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-                child: TextField(
-                  controller: _birthDateController,
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter your birthday',
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-                child: TextField(
-                  controller: _schoolController,
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter the school you go to',
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-                child: TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter your password',
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-                child: TextField(
-                  controller: _confirmPasswordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    border: OutlineInputBorder(),
-                    hintText: 'Verify your password',
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
+            const SizedBox(height: 20),
+            _buildTextField(_nameController, 'Enter your full name'),
+            _buildTextField(_emailController, 'Enter your email'),
+            _buildTextField(_birthDateController, 'Enter your birthday'),
+            _buildTextField(_schoolController, 'Enter the school you go to'),
+            _buildTextField(_passwordController, 'Enter your password',
+                obscureText: true),
+            _buildTextField(_confirmPasswordController, 'Verify your password',
+                obscureText: true),
+            const SizedBox(height: 30),
             GestureDetector(
               onTap: _signUp,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 100, vertical: 20),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: const Center(
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                      ),
+              child: Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 250, 
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryBlue.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
+                child: const Center(
+                  child: Text(
+                    'Sign Up',
+                    style: TextStyle(
+                      color: AppColors.background,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
                     ),
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: 30),
           ],
         ),
       ),
