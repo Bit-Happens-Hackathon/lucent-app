@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         '/authentication_screen': (context) => const authenticationScreen(),
         '/sign_in_screen': (context) => const sign_in_screen(),
         '/sign_up_screen': (context) => const sign_up_screen(),
-        '/chatbot': (context) => const ChatbotScreen(userId: "vcordo11@msudenver.edu"),
+        '/chatbot': (context) => const ChatbotScreen(userId: "johndoe@example.com"),
         '/profile': (context) => const ProfileScreen(userId: "vcordo11@msudenver.edu"),
         '/resources': (context) => const ResourcesScreen(),
         '/wellness_reflection_screen': (context) => const WellnessReflectionScreen(),
