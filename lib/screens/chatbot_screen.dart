@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../themes.dart';
 import '../widgets/top_navbar.dart';
 import '../widgets/drawer_menu.dart';
@@ -27,32 +28,38 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   };
   int? _selectedMoodIndex;
 
+  // New: Speech-to-Text
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _speech = stt.SpeechToText();
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _handleSubmitted(String text) {
     if (text.trim().isEmpty) return;
     setState(() {
-      _messages.add({
-        "text": text,
-        "sender": "user",
-      });
+      _messages.add({"text": text, "sender": "user"});
       _textController.clear();
     });
 
-    Future.delayed(const Duration(milliseconds: 100), () {
-      _scrollToBottom();
-    });
+    Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
 
     // Simulate bot reply
     Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
-        _messages.add({
-          "text": _generateBotReply(text),
-          "sender": "bot",
-        });
+        _messages.add({"text": _generateBotReply(text), "sender": "bot"});
       });
-
-      Future.delayed(const Duration(milliseconds: 100), () {
-        _scrollToBottom();
-      });
+      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
     });
   }
 
@@ -82,13 +89,37 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     return botReplies.first;
   }
 
+  void _listen() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize(
+        onStatus: (val) => print('onStatus: $val'),
+        onError: (val) => print('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (val) => setState(() {
+            _textController.text = val.recognizedWords;
+          }),
+        );
+      } else {
+        print('The user has denied speech recognition permissions.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enable microphone permissions in settings.'),
+          ),
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context)
-            .unfocus(); // This gets rid of keyboard when tapping outside
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: const TopNavBar(),
@@ -104,9 +135,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                   children: [
                     _buildProfileHeaderSection(),
                     const SizedBox(height: 16),
-                    ..._messages
-                        .map((message) => _buildMessageBubble(message))
-                        .toList(),
+                    ..._messages.map(_buildMessageBubble).toList(),
                   ],
                 ),
               ),
@@ -123,118 +152,94 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       children: [
         const SizedBox(height: 10),
         Center(
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.5,
-                height: MediaQuery.of(context).size.width * 0.5,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  // color: AppColors.primaryBlue,
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: RadarChart(
-                  RadarChartData(
-                    radarShape: RadarShape.circle,
-                    dataSets: [
-                      RadarDataSet(
-                        dataEntries: _wellnessStats.values
-                            .map((value) => RadarEntry(value: value.toDouble()))
-                            .toList(),
-                        borderColor: AppColors.primaryGreen,
-                        fillColor: AppColors.primaryGreen.withOpacity(0.4),
-                        entryRadius: 3,
-                        borderWidth: 2,
-                      ),
-                    ],
-                    radarBackgroundColor: Colors.transparent,
-                    radarBorderData: const BorderSide(color: AppColors.white),
-                    titlePositionPercentageOffset: 0.28,
-                    titleTextStyle: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    tickCount: 4,
-                    ticksTextStyle: const TextStyle(
-                        color: Colors.transparent,
-                        fontSize:
-                            0), // ticksTextStyle = hide or show numbers (tick values)
-                    tickBorderData: BorderSide(
-                      // tickBorderData = spider rings
-                      color: AppColors.white.withOpacity(0.7),
-                      width: 1,
-                    ), // hiding numbers
-                    gridBorderData: BorderSide(
-                        color: AppColors.white.withOpacity(0.8),
-                        width:
-                            1.5), // gridBorderData = connecting lines to labels
-                    getTitle: (index, angle) {
-                      final categories = _wellnessStats.keys.toList();
-                      return RadarChartTitle(
-                        text: categories[index],
-                      );
-                    },
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.5,
+            height: MediaQuery.of(context).size.width * 0.5,
+            padding: const EdgeInsets.all(16),
+            child: RadarChart(
+              RadarChartData(
+                radarShape: RadarShape.circle,
+                dataSets: [
+                  RadarDataSet(
+                    dataEntries: _wellnessStats.values
+                        .map((value) => RadarEntry(value: value.toDouble()))
+                        .toList(),
+                    borderColor: AppColors.primaryGreen,
+                    fillColor: AppColors.primaryGreen.withOpacity(0.4),
+                    entryRadius: 3,
+                    borderWidth: 2,
                   ),
-                ),
-              ),
-              const Divider(
-                color: AppColors.white,
-                thickness: 1,
-                indent: 32,
-                endIndent: 32,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Placeholder words because Kade told me so!!!',
-                style: TextStyle(color: AppColors.white, fontSize: 14),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/resources');
-                },
-                child: const Text(
-                  'Resources',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 16,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Divider(
-                color: AppColors.white,
-                thickness: 1,
-                indent: 32,
-                endIndent: 32,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'How are you today?',
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildMoodButton(0, '😢'),
-                  _buildMoodButton(1, '🙁'),
-                  _buildMoodButton(2, '😐'),
-                  _buildMoodButton(3, '🙂'),
-                  _buildMoodButton(4, '😊'),
                 ],
+                radarBackgroundColor: Colors.transparent,
+                radarBorderData: const BorderSide(color: AppColors.white),
+                titlePositionPercentageOffset: 0.28,
+                titleTextStyle: const TextStyle(
+                  color: AppColors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
+                ),
+                tickCount: 4,
+                ticksTextStyle: const TextStyle(
+                  color: Colors.transparent,
+                  fontSize: 0,
+                ),
+                tickBorderData: BorderSide(
+                  color: AppColors.white.withOpacity(0.7),
+                  width: 1,
+                ),
+                gridBorderData: BorderSide(
+                  color: AppColors.white.withOpacity(0.8),
+                  width: 1.5,
+                ),
+                getTitle: (index, angle) {
+                  final categories = _wellnessStats.keys.toList();
+                  return RadarChartTitle(text: categories[index]);
+                },
               ),
-              const SizedBox(height: 16),
-            ],
+            ),
           ),
         ),
+        const Divider(
+            color: AppColors.white, thickness: 1, indent: 32, endIndent: 32),
+        const SizedBox(height: 8),
+        const Text(
+          'Placeholder words because Kade told me so!!!',
+          style: TextStyle(color: AppColors.white, fontSize: 14),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => Navigator.pushNamed(context, '/resources'),
+          child: const Text(
+            'Resources',
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: 16,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Divider(
+            color: AppColors.white, thickness: 1, indent: 32, endIndent: 32),
+        const SizedBox(height: 16),
+        const Text(
+          'How are you today?',
+          style: TextStyle(
+            color: AppColors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+              5,
+              (index) => _buildMoodButton(
+                  index, ['😢', '🙁', '😐', '🙂', '😊'][index])),
+        ),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -248,10 +253,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: isUser
-              ? AppColors.primaryBlue
-              : AppColors
-                  .primaryYellow, // chatbot text is yellow, users text is blue
+          color: isUser ? AppColors.primaryBlue : AppColors.primaryYellow,
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Text(
@@ -303,15 +305,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           ),
           const SizedBox(width: 8.0),
           Container(
-            decoration: const BoxDecoration(
-              color: AppColors.primaryBlue,
+            decoration: BoxDecoration(
+              color: _isListening
+                  ? AppColors.primaryGreen
+                  : AppColors.primaryBlue,
               shape: BoxShape.circle,
             ),
             child: IconButton(
               icon: const Icon(Icons.mic, color: AppColors.background),
-              onPressed: () {
-                // Add voice input handling heree
-              },
+              onPressed: _listen,
             ),
           ),
         ],
