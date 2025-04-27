@@ -13,6 +13,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _textController = TextEditingController();
   final List<Map<String, dynamic>> _messages =
       []; // simple text-based messages for now
+  int? _selectedMoodIndex;
 
   void _handleSubmitted(String text) {
     if (text.trim().isEmpty) return;
@@ -102,6 +103,27 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     indent: 32,
                     endIndent: 32,
                   ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'How are you today?',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildMoodButton(0, '😢'),
+                      _buildMoodButton(1, '🙁'),
+                      _buildMoodButton(2, '😐'),
+                      _buildMoodButton(3, '🙂'),
+                      _buildMoodButton(4, '😊'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
@@ -192,6 +214,32 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMoodButton(int index, String emoji) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedMoodIndex = index;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _selectedMoodIndex == index 
+                ? AppColors.primaryBlue.withOpacity(0.3)
+                : Colors.transparent,
+          ),
+          child: Text(
+            emoji,
+            style: const TextStyle(fontSize: 24),
+          ),
+        ),
       ),
     );
   }
