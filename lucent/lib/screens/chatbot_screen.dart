@@ -86,7 +86,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).unfocus();  // This gets rid of keyboard when tapping outside
+        FocusScope.of(context)
+            .unfocus(); // This gets rid of keyboard when tapping outside
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
@@ -103,7 +104,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                   children: [
                     _buildProfileHeaderSection(),
                     const SizedBox(height: 16),
-                    ..._messages.map((message) => _buildMessageBubble(message)).toList(),
+                    ..._messages
+                        .map((message) => _buildMessageBubble(message))
+                        .toList(),
                   ],
                 ),
               ),
@@ -153,12 +156,19 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                       fontWeight: FontWeight.w400,
                     ),
                     tickCount: 4,
-                    ticksTextStyle: const TextStyle(color: Colors.transparent, fontSize: 0), // ticksTextStyle = hide or show numbers (tick values)
-                    tickBorderData: BorderSide( // tickBorderData = spider rings
-                      color: AppColors.white.withOpacity(0.7),   
+                    ticksTextStyle: const TextStyle(
+                        color: Colors.transparent,
+                        fontSize:
+                            0), // ticksTextStyle = hide or show numbers (tick values)
+                    tickBorderData: BorderSide(
+                      // tickBorderData = spider rings
+                      color: AppColors.white.withOpacity(0.7),
                       width: 1,
                     ), // hiding numbers
-                    gridBorderData: BorderSide(color: AppColors.white.withOpacity(0.8), width: 1.5), // gridBorderData = connecting lines to labels
+                    gridBorderData: BorderSide(
+                        color: AppColors.white.withOpacity(0.8),
+                        width:
+                            1.5), // gridBorderData = connecting lines to labels
                     getTitle: (index, angle) {
                       final categories = _wellnessStats.keys.toList();
                       return RadarChartTitle(
@@ -177,7 +187,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Placeholder words because Kade told me so!!!',
-                style: TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: AppColors.white, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -205,7 +215,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               const Text(
                 'How are you today?',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
                 ),
@@ -238,7 +248,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.primaryBlue : AppColors.messageYellow, // chatbot text is yellow, users text is blue
+          color: isUser
+              ? AppColors.primaryBlue
+              : AppColors
+                  .messageYellow, // chatbot text is yellow, users text is blue
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Text(
@@ -257,15 +270,17 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         12.0,
         8.0,
         12.0,
-        isKeyboardVisible ? MediaQuery.of(context).size.height * 0.01 : MediaQuery.of(context).size.height * 0.05,
+        isKeyboardVisible
+            ? MediaQuery.of(context).size.height * 0.01
+            : MediaQuery.of(context).size.height * 0.05,
       ),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: _textController,
-              style: const TextStyle(color: Colors.white),
-              cursorColor: Colors.white,
+              style: const TextStyle(color: AppColors.white),
+              cursorColor: AppColors.white,
               decoration: InputDecoration(
                 hintText: "Type your message...",
                 hintStyle: TextStyle(color: Colors.grey.shade400),
@@ -317,7 +332,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _selectedMoodIndex == index 
+            color: _selectedMoodIndex == index
                 ? AppColors.primaryBlue.withOpacity(0.3)
                 : Colors.transparent,
           ),
