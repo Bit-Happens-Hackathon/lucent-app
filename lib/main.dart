@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-
+import 'screens/profile_screen.dart';
 import 'screens/chatbot_screen.dart';
+import 'screens/resources_screen.dart';
+import 'screens/wellness_reflection_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,9 +33,16 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        useMaterial3: false,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      home: const ChatbotScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const WellnessReflectionScreen(),
+        '/chatbot': (context) => const ChatbotScreen(),
+        '/profile': (context) => const ProfileScreen(),
+        '/resources': (context) => const ResourcesScreen(),
+      },
     );
   }
 }

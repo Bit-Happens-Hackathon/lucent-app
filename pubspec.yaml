@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    
+  fl_chart: ^0.63.0
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -49,10 +52,12 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+    
 
 # The following section is specific to Flutter packages.
 flutter:
-
+  assets:
+    - assets/ceec.JPG
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
