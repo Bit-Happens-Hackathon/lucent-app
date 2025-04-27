@@ -4,6 +4,7 @@ import '../themes.dart';
 import '../widgets/top_navbar.dart';
 import '../widgets/drawer_menu.dart';
 import '../widgets/wellness_card.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,6 +16,16 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _animation;
+
+  final Map<String, int> _wellnessStats = {
+    'Financial': 75,
+    'Creative': 85,
+    'Social': 65,
+    'Environmental': 70,
+    'Spiritual': 60,
+    'Physical': 80,
+    'Emotional': 78,
+  };
 
   @override
   void initState() {
@@ -156,20 +167,37 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               ),
             ),
             const SizedBox(height: 10),
-            Center(
-              child: Container(
-                width: 250,
-                height: 250,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage('assets/ceec.JPG'),
-                    fit: BoxFit.cover,
-                  ),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.width * 0.8,
+              padding: const EdgeInsets.all(16),
+              child: RadarChart(
+                RadarChartData(
+                  radarShape: RadarShape.circle,
+                  dataSets: [
+                    RadarDataSet(
+                      dataEntries: _wellnessStats.values.map((value) => RadarEntry(value: value.toDouble())).toList(),
+                      borderColor: AppColors.primaryGreen,
+                      fillColor: AppColors.primaryGreen.withOpacity(0.4),
+                      entryRadius: 3,
+                      borderWidth: 2,
+                    ),
+                  ],
+                  radarBackgroundColor: Colors.transparent,
+                  radarBorderData: const BorderSide(color: AppColors.white),
+                  titlePositionPercentageOffset: 0.28,
+                  titleTextStyle: const TextStyle(color: AppColors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                  tickCount: 4,
+                  ticksTextStyle: const TextStyle(color: Colors.transparent, fontSize: 0),
+                  tickBorderData: BorderSide(color: AppColors.white.withOpacity(0.7), width: 1),
+                  gridBorderData: BorderSide(color: AppColors.white.withOpacity(0.8), width: 1.5),
+                  getTitle: (index, angle) {
+                    final categories = _wellnessStats.keys.toList();
+                    return RadarChartTitle(text: categories[index]);
+                  },
                 ),
               ),
             ),
-            const SizedBox(height: 10), 
             const Divider(
               color: AppColors.white,
               thickness: 1,

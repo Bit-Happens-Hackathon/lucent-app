@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../themes.dart';
 import '../widgets/top_navbar.dart';
 import '../widgets/drawer_menu.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({super.key});
@@ -14,6 +15,16 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
+  // Placeholder wellness data for the user
+  final Map<String, int> _wellnessStats = {
+    'Financial': 75,
+    'Creative': 85,
+    'Social': 65,
+    'Environmental': 70,
+    'Spiritual': 60,
+    'Physical': 80,
+    'Emotional': 78,
+  };
   int? _selectedMoodIndex;
 
   void _handleSubmitted(String text) {
@@ -107,24 +118,58 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   Widget _buildProfileHeaderSection() {
     return Column(
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         Center(
           child: Column(
             children: [
               Container(
-                width: 150,
-                height: 150,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AssetImage('assets/ceec.JPG'),
-                    fit: BoxFit.cover,
+                width: MediaQuery.of(context).size.width * 0.5,
+                height: MediaQuery.of(context).size.width * 0.5,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  // color: AppColors.primaryBlue,
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                child: RadarChart(
+                  RadarChartData(
+                    radarShape: RadarShape.circle,
+                    dataSets: [
+                      RadarDataSet(
+                        dataEntries: _wellnessStats.values
+                            .map((value) => RadarEntry(value: value.toDouble()))
+                            .toList(),
+                        borderColor: AppColors.primaryGreen,
+                        fillColor: AppColors.primaryGreen.withOpacity(0.4),
+                        entryRadius: 3,
+                        borderWidth: 2,
+                      ),
+                    ],
+                    radarBackgroundColor: Colors.transparent,
+                    radarBorderData: const BorderSide(color: AppColors.white),
+                    titlePositionPercentageOffset: 0.28,
+                    titleTextStyle: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    tickCount: 4,
+                    ticksTextStyle: const TextStyle(color: Colors.transparent, fontSize: 0), // ticksTextStyle = hide or show numbers (tick values)
+                    tickBorderData: BorderSide( // tickBorderData = spider rings
+                      color: AppColors.white.withOpacity(0.7),   
+                      width: 1,
+                    ), // hiding numbers
+                    gridBorderData: BorderSide(color: AppColors.white.withOpacity(0.8), width: 1.5), // gridBorderData = connecting lines to labels
+                    getTitle: (index, angle) {
+                      final categories = _wellnessStats.keys.toList();
+                      return RadarChartTitle(
+                        text: categories[index],
+                      );
+                    },
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
               const Divider(
-                color: Colors.grey,
+                color: AppColors.white,
                 thickness: 1,
                 indent: 32,
                 endIndent: 32,
@@ -132,7 +177,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Placeholder words because Kade told me so!!!',
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: Colors.white, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -143,7 +188,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 child: const Text(
                   'Resources',
                   style: TextStyle(
-                    color: AppColors.primaryBlue,
+                    color: AppColors.white,
                     fontSize: 16,
                     decoration: TextDecoration.underline,
                   ),
@@ -151,7 +196,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               ),
               const SizedBox(height: 8),
               const Divider(
-                color: Colors.grey,
+                color: AppColors.white,
                 thickness: 1,
                 indent: 32,
                 endIndent: 32,
@@ -193,7 +238,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.primaryBlue : AppColors.messageBlue,
+          color: isUser ? AppColors.primaryBlue : AppColors.messageYellow, // chatbot text is yellow, users text is blue
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Text(
@@ -225,7 +270,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 hintText: "Type your message...",
                 hintStyle: TextStyle(color: Colors.grey.shade400),
                 filled: true,
-                fillColor: Colors.grey.shade900,
+                fillColor: AppColors.background,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24.0),
