@@ -1,173 +1,169 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../themes.dart';
-import '../widgets/top_navbar.dart';
-import '../widgets/drawer_menu.dart';
 
-class AppColors {
-  static const Color background = Color(0xFF242325);
-  static const Color white = Color(0xFFF0F4EF);
-  static const Color primaryBlue = Color(0xFF9dd4f1);
-  static const Color messageBlue = Color(0xFF9dcaf1);
-}
-
-// ignore: camel_case_types
-class sign_up_screen extends StatelessWidget {
+class sign_up_screen extends StatefulWidget {
   const sign_up_screen({super.key});
 
+  @override
+  State<sign_up_screen> createState() => _sign_up_screenState();
+}
 
+class _sign_up_screenState extends State<sign_up_screen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _birthDateController = TextEditingController();
+  final TextEditingController _schoolController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  final String baseUrl = 'http://10.6.131.67:8000';
+
+  Future<void> _signUp() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showErrorDialog('Passwords do not match.');
+      return;
+    }
+
+    final url = Uri.parse('$baseUrl/users/');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'birthdate': _birthDateController.text,
+          'school': _schoolController.text,
+          'password': _passwordController.text,
+          'confirm_password': _confirmPasswordController.text,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        Navigator.pushReplacementNamed(context, '/sign_in_screen');
+      } else {
+        print('Server response: ${response.body}');
+        _showErrorDialog('Sign up failed. Please try again.');
+      }
+    } catch (e) {
+      _showErrorDialog('Error: $e');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.background,
+        title: const Text('Error', style: TextStyle(color: Colors.white)),
+        content: Text(message, style: const TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK',
+                style: TextStyle(color: AppColors.primaryBlue)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String hintText,
+      {bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        cursorColor: AppColors.primaryBlue, 
+        decoration: InputDecoration(
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
+          ),
+          border: const OutlineInputBorder(),
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.white70),
+        ),
+        style: const TextStyle(color: Colors.white),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _birthDateController = TextEditingController();
-  TextEditingController _schoolController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          //name
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40.0),
-              child: SizedBox(height: 40),
-            ),
-          ),
-    const Text('Create Account',
-    style: TextStyle(fontWeight: FontWeight.bold,
-    fontSize: 40,
-    color: Colors.white
-    )
-    ),
-    Center(
-      child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-      child: TextField(
-      decoration: const InputDecoration(
-      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-      border: OutlineInputBorder(),
-      hintText: 'Enter your full name',
-      hintStyle: TextStyle(color: Colors.white)
-      ),
-      controller: _nameController,
-      style: const TextStyle(color: Colors.white)
-      ),
-    ),
-),
-          //email
-    Center(
-      child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-      child: TextField(
-      decoration: const InputDecoration(
-      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-      border: OutlineInputBorder(),
-      hintText: 'Enter your email',
-      hintStyle: TextStyle(color: Colors.white)
-      ),
-      controller: _emailController,
-      style: const TextStyle(color: Colors.white)
-      ),
-        
-    ),
-),
-          //birthdate
-    Center(
-      child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-      child: TextField(
-      decoration: const InputDecoration(
-      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-      border: OutlineInputBorder(),
-      hintText: 'Enter your birthday',
-      hintStyle: TextStyle(color: Colors.white)
-      ),
-      controller: _birthDateController,
-      style: const TextStyle(color: Colors.white)
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
-    ),
-),
-          //school
-    Center(
-      child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-      child: TextField(
-      decoration: const InputDecoration(
-      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-      border: OutlineInputBorder(),
-      hintText: 'Enter the school you go to',
-      hintStyle: TextStyle(color: Colors.white)
       ),
-      controller: _schoolController,
-      style: const TextStyle(color: Colors.white)
-        ),
-    ),
-),
-          //password
-    Center(
-      child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-      child: TextField(
-      decoration: const InputDecoration(
-      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-      border: OutlineInputBorder(),
-      hintText: 'Enter your password',
-      hintStyle: TextStyle(color: Colors.white)
-      ),
-      controller: _passwordController,
-      style: const TextStyle(color: Colors.white)
-        ),
-    ),
-),
-          //password confirm
-              const Center(
-      child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-      child: TextField(
-      decoration: InputDecoration(
-      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-      border: OutlineInputBorder(),
-      hintText: 'Verify your password',
-      hintStyle: TextStyle(color: Colors.white)
-      ),
-      style: TextStyle(color: Colors.white)
-        ),
-    ),
-),
-
-GestureDetector(
-          onTap: () {
-            Navigator.pushReplacementNamed(context, '/sign_in_screen');
-            print(_nameController);
-            print(_passwordController);
-            print(_schoolController);
-            print(_birthDateController);
-            print(_emailController);
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 20),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(12),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            const Text(
+              'Create Account',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 40,
+                color: AppColors.primaryBlue,
               ),
-              padding: const EdgeInsets.all(20),
-              child: const Center(
-                child: Text('Sign Up',
-                style: TextStyle(
-                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30
+            ),
+            const SizedBox(height: 20),
+            _buildTextField(_nameController, 'Enter your full name'),
+            _buildTextField(_emailController, 'Enter your email'),
+            _buildTextField(_birthDateController, 'Enter your birthday'),
+            _buildTextField(_schoolController, 'Enter the school you go to'),
+            _buildTextField(_passwordController, 'Enter your password',
+                obscureText: true),
+            _buildTextField(_confirmPasswordController, 'Verify your password',
+                obscureText: true),
+            const SizedBox(height: 30),
+            GestureDetector(
+              onTap: _signUp,
+              child: Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 250, 
                 ),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryBlue.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
+                child: const Center(
+                  child: Text(
+                    'Sign Up',
+                    style: TextStyle(
+                      color: AppColors.background,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                  ),
                 ),
               ),
             ),
-            ),
+            const SizedBox(height: 30),
+          ],
         ),
-        ],)
-        
+      ),
     );
   }
 }

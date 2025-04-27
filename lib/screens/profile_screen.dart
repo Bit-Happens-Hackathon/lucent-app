@@ -7,10 +7,13 @@ import '../widgets/drawer_menu.dart';
 import '../widgets/wellness_card.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../services/visits_service.dart';
+import '../services/wellness_service.dart'; // Import the wellness service
 import 'dart:convert';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final String? userId;
+  
+  const ProfileScreen({super.key, this.userId = "vcordo11@msudenver.edu"}); // Default to our placeholder
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -21,19 +24,22 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   late Animation<Offset> _animation;
   final PageController _pageController = PageController();
   final VisitsService _visitsService = VisitsService();
+  final WellnessService _wellnessService = WellnessService(); // Add wellness service
   final int currentYear = DateTime.now().year; // Current year (2025)
   
   // Map to store visits by month
   Map<int, List<DateTime>> _visitsByMonth = {};
 
-  final Map<String, int> _wellnessStats = {
-    'Financial': 75,
-    'Creative': 85,
-    'Social': 65,
-    'Environmental': 70,
-    'Spiritual': 60,
-    'Physical': 80,
-    'Emotional': 78,
+  // Wellness data and loading state
+  bool _isLoadingWellness = true;
+  Map<String, int> _wellnessStats = {
+    'Financial': 0,
+    'Creative': 0,
+    'Social': 0,
+    'Environmental': 0,
+    'Spiritual': 0,
+    'Physical': 0,
+    'Emotional': 0,
   };
 
   List<DateTime> _userVisits = [];
@@ -60,6 +66,76 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     }
 
     _fetchUserVisits();
+    _fetchWellnessData(); // Fetch wellness data
+  }
+
+  // Method to fetch wellness data from the API
+  Future<void> _fetchWellnessData() async {
+    if (widget.userId == null) {
+      setState(() {
+        _isLoadingWellness = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoadingWellness = true;
+    });
+
+    try {
+      // Get the most recent wellness record for the user
+      final List<WellnessRecord> records = await _wellnessService.getUserWellnessRecords(
+        userId: widget.userId!,
+        limit: 1, // Just get the most recent record
+      );
+
+      if (records.isNotEmpty) {
+        final latestRecord = records.first;
+        setState(() {
+          _wellnessStats = {
+            'Financial': latestRecord.financial,
+            'Creative': latestRecord.creative,
+            'Social': latestRecord.social,
+            'Environmental': latestRecord.environmental,
+            'Spiritual': latestRecord.spiritual,
+            'Physical': latestRecord.physical,
+            'Emotional': latestRecord.emotional,
+          };
+          _isLoadingWellness = false;
+        });
+      } else {
+        // If no records, use placeholder data for demonstration
+        setState(() {
+          _wellnessStats = {
+            'Financial': 75,
+            'Creative': 85,
+            'Social': 65,
+            'Environmental': 70,
+            'Spiritual': 60,
+            'Physical': 80, 
+            'Emotional': 78,
+          };
+          _isLoadingWellness = false;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching wellness data: $e');
+      }
+      // Fallback to placeholder data on error
+      setState(() {
+        _wellnessStats = {
+          'Financial': 75,
+          'Creative': 85,
+          'Social': 65,
+          'Environmental': 70,
+          'Spiritual': 60,
+          'Physical': 80,
+          'Emotional': 78,
+        };
+        _isLoadingWellness = false;
+      });
+    }
   }
 
   Future<void> _fetchUserVisits() async {
@@ -217,32 +293,38 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 width: MediaQuery.of(context).size.width * 0.8,
                 height: MediaQuery.of(context).size.width * 0.8,
                 padding: const EdgeInsets.all(16),
-                child: RadarChart(
-                  RadarChartData(
-                    radarShape: RadarShape.circle,
-                    dataSets: [
-                      RadarDataSet(
-                        dataEntries: _wellnessStats.values.map((value) => RadarEntry(value: value.toDouble())).toList(),
-                        borderColor: AppColors.primaryGreen,
-                        fillColor: AppColors.primaryGreen.withOpacity(0.4),
-                        entryRadius: 3,
-                        borderWidth: 2,
+                child: _isLoadingWellness
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryGreen,
                       ),
-                    ],
-                    radarBackgroundColor: Colors.transparent,
-                    radarBorderData: const BorderSide(color: AppColors.white),
-                    titlePositionPercentageOffset: 0.28,
-                    titleTextStyle: const TextStyle(color: AppColors.white, fontSize: 14, fontWeight: FontWeight.w500),
-                    tickCount: 4,
-                    ticksTextStyle: const TextStyle(color: Colors.transparent),
-                    tickBorderData: BorderSide(color: AppColors.white.withOpacity(0.7), width: 1),
-                    gridBorderData: BorderSide(color: AppColors.white.withOpacity(0.8), width: 1.5),
-                    getTitle: (index, angle) {
-                      final categories = _wellnessStats.keys.toList();
-                      return RadarChartTitle(text: categories[index]);
-                    },
+                    )
+                  : RadarChart(
+                    RadarChartData(
+                      radarShape: RadarShape.circle,
+                      dataSets: [
+                        RadarDataSet(
+                          dataEntries: _wellnessStats.values.map((value) => RadarEntry(value: value.toDouble())).toList(),
+                          borderColor: AppColors.primaryGreen,
+                          fillColor: AppColors.primaryGreen.withOpacity(0.4),
+                          entryRadius: 3,
+                          borderWidth: 2,
+                        ),
+                      ],
+                      radarBackgroundColor: Colors.transparent,
+                      radarBorderData: const BorderSide(color: AppColors.white),
+                      titlePositionPercentageOffset: 0.28,
+                      titleTextStyle: const TextStyle(color: AppColors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                      tickCount: 4,
+                      ticksTextStyle: const TextStyle(color: Colors.transparent),
+                      tickBorderData: BorderSide(color: AppColors.white.withOpacity(0.7), width: 1),
+                      gridBorderData: BorderSide(color: AppColors.white.withOpacity(0.8), width: 1.5),
+                      getTitle: (index, angle) {
+                        final categories = _wellnessStats.keys.toList();
+                        return RadarChartTitle(text: categories[index]);
+                      },
+                    ),
                   ),
-                ),
               ),
               const Divider(color: AppColors.white, thickness: 1, indent: 32, endIndent: 32),
               const SizedBox(height: 10),
@@ -250,19 +332,26 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               const SizedBox(height: 10),
               SizedBox(
                 height: 100,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  children: const [
-                    WellnessCard(category: 'Physical', percentage: 75),
-                    WellnessCard(category: 'Emotional', percentage: 82),
-                    WellnessCard(category: 'Spiritual', percentage: 64),
-                    WellnessCard(category: 'Financial', percentage: 88),
-                    WellnessCard(category: 'Environmental', percentage: 70),
-                    WellnessCard(category: 'Social', percentage: 90),
-                    WellnessCard(category: 'Creative', percentage: 80),
-                  ],
-                ),
+                child: _isLoadingWellness
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryGreen,
+                      ),
+                    )
+                  : ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    children: [
+                      // Use the same keys as in _wellnessStats map for consistency
+                      WellnessCard(category: 'Physical', percentage: _wellnessStats['Physical'] ?? 0),
+                      WellnessCard(category: 'Emotional', percentage: _wellnessStats['Emotional'] ?? 0),
+                      WellnessCard(category: 'Spiritual', percentage: _wellnessStats['Spiritual'] ?? 0),
+                      WellnessCard(category: 'Financial', percentage: _wellnessStats['Financial'] ?? 0),
+                      WellnessCard(category: 'Environmental', percentage: _wellnessStats['Environmental'] ?? 0),
+                      WellnessCard(category: 'Social', percentage: _wellnessStats['Social'] ?? 0),
+                      WellnessCard(category: 'Creative', percentage: _wellnessStats['Creative'] ?? 0),
+                    ],
+                  ),
               ),
               const SizedBox(height: 16),
               SlideTransition(
