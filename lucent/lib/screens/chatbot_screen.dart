@@ -11,12 +11,16 @@ class ChatbotScreen extends StatefulWidget {
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _textController = TextEditingController();
-  final List<String> _messages = []; // simple text-based messages for now
+  final List<Map<String, dynamic>> _messages =
+      []; // simple text-based messages for now
 
   void _handleSubmitted(String text) {
     if (text.trim().isEmpty) return;
     setState(() {
-      _messages.add(text);
+      _messages.add({
+        "text": text,
+        "sender": "user",
+      });
       _textController.clear();
     });
   }
@@ -81,7 +85,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                   child: const Text(
                     'Resources',
                     style: TextStyle(
-                      color: AppColors.primaryGreen,
+                      color: AppColors.primaryBlue,
                       fontSize: 16,
                       decoration: TextDecoration.underline,
                     ),
@@ -102,17 +106,23 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               padding: const EdgeInsets.all(16.0),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
+                final message = _messages[index];
+                final isUser = message['sender'] == 'user';
+
                 return Align(
-                  alignment: Alignment.centerLeft,
+                  alignment:
+                      isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
                     padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      color: AppColors.messagePurple,
+                      color: isUser
+                          ? AppColors.primaryBlue
+                          : AppColors.messagePurple,
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Text(
-                      _messages[index],
+                      message['text'],
                       style: const TextStyle(color: AppColors.background),
                     ),
                   ),
@@ -136,6 +146,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             child: TextField(
               controller: _textController,
               style: const TextStyle(color: Colors.white),
+              cursorColor: Colors.white, // Add this line
               decoration: InputDecoration(
                 hintText: "Type your message...",
                 hintStyle: TextStyle(color: Colors.grey.shade400),
@@ -144,16 +155,16 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24.0),
-                  borderSide: const BorderSide(color: AppColors.primaryGreen),
+                  borderSide: const BorderSide(color: AppColors.primaryBlue),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24.0),
-                  borderSide: const BorderSide(color: AppColors.primaryGreen),
+                  borderSide: const BorderSide(color: AppColors.primaryBlue),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24.0),
                   borderSide:
-                      const BorderSide(color: AppColors.primaryGreen, width: 2),
+                      const BorderSide(color: AppColors.primaryBlue, width: 2),
                 ),
               ),
               onSubmitted: _handleSubmitted,
@@ -162,7 +173,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           const SizedBox(width: 8.0),
           Container(
             decoration: const BoxDecoration(
-              color: AppColors.primaryGreen,
+              color: AppColors.primaryBlue,
               shape: BoxShape.circle,
             ),
             child: IconButton(
