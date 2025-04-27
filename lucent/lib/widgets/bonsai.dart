@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'dart:convert';
 
 /// Represents a single day leaf state
 class DayData {
@@ -13,6 +14,33 @@ class WeekData {
   WeekData({required this.days});
 }
 
+/// Helper: build weeks of DayData from list of timestamps
+List<WeekData> generateWeekData(List<DateTime> visits, {required int year, required int month}) {
+  final daysInMonth = DateTime(year, month + 1, 0).day;
+  final visitedSet = visits
+      .where((dt) => dt.year == year && dt.month == month)
+      .map((dt) => dt.day)
+      .toSet();
+  // First 28 days broken into 4 equal chunks of 7; any extra days (29th+) go to branches 1–N
+  const int branches = 4;
+  const int basePerBranch = 7;
+  final extraDays = daysInMonth - basePerBranch * branches;
+  List<WeekData> result = [];
+  int cursor = 1;
+  for (int i = 0; i < branches; i++) {
+    // branch 0 always has basePerBranch days; branches 1.. get an extra day if extraDays >= index
+    final additional = (i > 0 && (i <= extraDays)) ? 1 : 0;
+    final count = basePerBranch + additional;
+    List<DayData> days = [];
+    for (int j = 0; j < count; j++) {
+      days.add(DayData(visited: visitedSet.contains(cursor)));
+      cursor++;
+    }
+    result.add(WeekData(days: days));
+  }
+  return result;
+}
+
 class BonsaiTree extends StatelessWidget {
   final List<WeekData> weeks;
   final double branchLengthFactor;
@@ -23,11 +51,78 @@ class BonsaiTree extends StatelessWidget {
   const BonsaiTree({
     Key? key,
     required this.weeks,
-    this.branchLengthFactor = 0.3,
-    this.leafBranchLengthFactor = 0.4,
-    this.leafStemLengthFactor = 0.5,
-    this.leafSizeFactor = 0.03,
+    this.branchLengthFactor = 0.2, // controls main branch length relative to container width
+    this.leafBranchLengthFactor = 0.50, // controls leaf puff radius relative to container width
+    this.leafStemLengthFactor = 0.32,  // shorter stems
+    this.leafSizeFactor = 0.05,       // leaf circle radius relative to width
   }) : super(key: key);
+
+  /// Create a BonsaiTree from a JSON string containing date timestamps
+  /// Format expected: {"visits": ["YYYY-MM-DDThh:mm:ssZ", ...]}
+  factory BonsaiTree.fromJson(
+    String jsonString, {
+    Key? key,
+    int? year,
+    int? month,
+    double branchLengthFactor = 0.2,
+    double leafBranchLengthFactor = 0.50,
+    double leafStemLengthFactor = 0.32,
+    double leafSizeFactor = 0.05,
+  }) {
+    final data = json.decode(jsonString);
+    return BonsaiTree.fromMap(
+      data,
+      key: key,
+      year: year,
+      month: month,
+      branchLengthFactor: branchLengthFactor,
+      leafBranchLengthFactor: leafBranchLengthFactor,
+      leafStemLengthFactor: leafStemLengthFactor,
+      leafSizeFactor: leafSizeFactor,
+    );
+  }
+
+  /// Create a BonsaiTree from a pre-parsed Map containing date timestamps
+  /// Format expected: {"visits": ["YYYY-MM-DDThh:mm:ssZ", ...]}
+  factory BonsaiTree.fromMap(
+    Map<String, dynamic> data, {
+    Key? key,
+    int? year,
+    int? month,
+    double branchLengthFactor = 0.2,
+    double leafBranchLengthFactor = 0.50,
+    double leafStemLengthFactor = 0.32,
+    double leafSizeFactor = 0.05,
+  }) {
+    final visitsList = data['visits'] as List<dynamic>;
+    final visits = visitsList.map((e) => DateTime.parse(e as String)).toList();
+    
+    // Auto-detect year and month if not provided
+    if (visits.isNotEmpty) {
+      // Sort visits to find the most recent month data
+      visits.sort((a, b) => b.compareTo(a)); // descending order
+      
+      // Use the most recent timestamp to determine month/year
+      year ??= visits.first.year;
+      month ??= visits.first.month;
+    } else {
+      // If no timestamps provided, use current month
+      final now = DateTime.now();
+      year ??= now.year;
+      month ??= now.month;
+    }
+    
+    final weeks = generateWeekData(visits, year: year, month: month);
+    
+    return BonsaiTree(
+      key: key,
+      weeks: weeks,
+      branchLengthFactor: branchLengthFactor,
+      leafBranchLengthFactor: leafBranchLengthFactor,
+      leafStemLengthFactor: leafStemLengthFactor,
+      leafSizeFactor: leafSizeFactor,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
