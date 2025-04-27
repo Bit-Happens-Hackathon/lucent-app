@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../themes.dart';
 import '../widgets/top_navbar.dart';
+import '../widgets/drawer_menu.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({super.key});
@@ -79,23 +80,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: const TopNavBar(),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: const [
-              DrawerHeader(
-                decoration: BoxDecoration(color: Colors.grey),
-                child: Text('Menu', style: TextStyle(color: Colors.white)),
-              ),
-              ListTile(
-                title: Text('Profile'),
-              ),
-              ListTile(
-                title: Text('Settings'),
-              ),
-            ],
-          ),
-        ),
+        drawer: const DrawerMenu(),
         body: Column(
           children: [
             Expanded(

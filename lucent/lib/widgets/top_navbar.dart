@@ -11,11 +11,14 @@ class TopNavBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.white,
-      leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.black),
-        onPressed: () {
-          Scaffold.of(context).openDrawer(); // Will link to a drawer later :v
-        },
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, color: Colors.black),
+          onPressed: () {
+            FocusScope.of(context).unfocus(); // dismiss keyboard
+            Scaffold.of(context).openDrawer();
+          },
+        ),
       ),
       actions: [
         Padding(
@@ -28,9 +31,16 @@ class TopNavBar extends StatelessWidget implements PreferredSizeWidget {
                 width: 1.5,
               ),
             ),
-            child: const CircleAvatar(
-              backgroundColor: AppColors.primaryBlue,
-              child: Icon(Icons.person, color: Colors.black),
+            child: GestureDetector(
+              onTap: () {
+                if (ModalRoute.of(context)?.settings.name != '/profile') {
+                  Navigator.pushNamed(context, '/profile');
+                }
+              },
+              child: const CircleAvatar(
+                backgroundColor: AppColors.primaryBlue,
+                child: Icon(Icons.person, color: Colors.black),
+              ),
             ),
           ),
         ),

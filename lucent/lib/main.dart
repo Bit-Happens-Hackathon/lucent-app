@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'screens/profile_screen.dart';
 import 'screens/chatbot_screen.dart';
 import 'screens/resources_screen.dart';
 
@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const ChatbotScreen(),
         '/resources': (context) => const ResourcesScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
     );
   }
