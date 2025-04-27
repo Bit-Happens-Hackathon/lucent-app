@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lucent/global.dart';
 import 'package:lucent/widgets/bonsai.dart';
 import '../themes.dart';
 import '../widgets/top_navbar.dart';
@@ -140,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Future<void> _fetchUserVisits() async {
     try {
-      final visits = await _visitsService.getUserVisits("vcordo11@msudenver.edu");
+      final visits = await _visitsService.getUserVisits(Globals.username);
       
       if (kDebugMode) {
         print('Raw fetched visits: $visits');

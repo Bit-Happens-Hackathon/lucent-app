@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucent/global.dart';
 import 'package:lucent/screens/authentication_screen.dart';
 import 'package:lucent/screens/sign_in_screen.dart';
 import 'package:lucent/screens/sign_up_screen.dart';
@@ -45,8 +46,8 @@ class MyApp extends StatelessWidget {
         '/authentication_screen': (context) => const authenticationScreen(),
         '/sign_in_screen': (context) => const sign_in_screen(),
         '/sign_up_screen': (context) => const sign_up_screen(),
-        '/chatbot': (context) => const ChatbotScreen(userId: "vcordo11@msudenver.edu"),
-        '/profile': (context) => const ProfileScreen(userId: "vcordo11@msudenver.edu"),
+        '/chatbot': (context) => ChatbotScreen(userId: Globals.username),
+        '/profile': (context) => ProfileScreen(userId: Globals.username),
         '/resources': (context) => const ResourcesScreen(),
         '/wellness_reflection_screen': (context) => const WellnessReflectionScreen(),
       },

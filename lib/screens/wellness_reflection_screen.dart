@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lucent/global.dart';
+import 'package:lucent/services/wellness_service.dart';
 import '../themes.dart';
 
 class WellnessReflectionScreen extends StatefulWidget {
@@ -72,6 +74,7 @@ class _WellnessReflectionScreenState extends State<WellnessReflectionScreen> {
   int _currentCategoryIndex = 0;
   final Map<String, dynamic> _answers = {};
   late final PageController _pageController;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -100,8 +103,116 @@ class _WellnessReflectionScreenState extends State<WellnessReflectionScreen> {
   }
 
   void _updateAnswer(String question, dynamic answer) {
-    _answers[question] = answer;
+    setState(() {
+      _answers[question] = answer;
+    });
   }
+
+  Future<void> _finishReflection() async {
+  // Prevent multiple submissions
+  if (_isSaving) return;
+  
+  setState(() {
+    _isSaving = true;
+  });
+
+  try {
+    // Create a map with the exact keys the API expects
+    final Map<String, dynamic> data = {
+      'physical': 0,
+      'financial': 0,
+      'emotional': 0,
+      'spiritual': 0,
+      'social': 0,
+      'environmental': 0,
+      'creative': 0,
+      'date': DateTime.now().toIso8601String().split('T')[0], // Add today's date in YYYY-MM-DD format
+    };
+    
+    // Map your category titles to the exact keys the API expects
+    final Map<String, String> categoryMapping = {
+      'Physical': 'physical',
+      'Financial': 'financial',
+      'Emotional': 'emotional',
+      'Spiritual': 'spiritual',
+      'Social': 'social',
+      'Environmental': 'environmental',
+      'Creative': 'creative',
+    };
+    
+    // Calculate scores per category
+    for (var category in _categories) {
+      double totalScore = 0.0;
+      final String categoryTitle = category['title'];
+      final String apiKey = categoryMapping[categoryTitle]!; // Get the API key for this category
+      final List<dynamic> questions = category['questions'];
+      bool allQuestionsAnswered = true;
+      
+      // Check if all questions in this category have been answered
+      for (var question in questions) {
+        final String questionText = question['text'];
+        if (!_answers.containsKey(questionText)) {
+          allQuestionsAnswered = false;
+          break;
+        }
+      }
+      
+      // If not all questions are answered, use a default score of 50
+      if (!allQuestionsAnswered) {
+        data[apiKey] = 50;
+        continue;
+      }
+      
+      int maxPossiblePoints = 0;
+      int earnedPoints = 0;
+      
+      // Process each question's answer
+      for (var question in questions) {
+        final String questionText = question['text'];
+        final dynamic answer = _answers[questionText];
+        
+        if (question['type'] == 'scale') {
+          maxPossiblePoints += 5; // Max scale value is 5
+          earnedPoints += (answer as int);
+        } else if (question['type'] == 'yesno') {
+          maxPossiblePoints += 5; // Make a Yes equal to max scale value
+          earnedPoints += answer == 'Yes' ? 5 : 0;
+        }
+      }
+      
+      // Convert to percentage (0-100)
+      totalScore = (earnedPoints / maxPossiblePoints) * 100;
+      
+      // Convert to integer and store
+      data[apiKey] = totalScore.round();
+    }
+    
+    // Log calculated scores
+    print('Calculated Category Scores:');
+    data.forEach((category, score) {
+      print('$category: $score');
+    });
+    
+    // Attempt to save to backend with the properly formatted data
+    await WellnessService().createWellness(
+      Globals.username,
+      data,
+    );
+    
+    print('Successfully saved wellness data to database!');
+    
+    // Navigate to the next screen
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/chatbot');
+    }
+  } catch (e) {
+    print('Error sending data to backend: $e');
+    // Reset the loading state in case of error
+    setState(() {
+      _isSaving = false;
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lucent/global.dart';
+import 'package:lucent/services/user_chats_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../themes.dart';
 import '../widgets/top_navbar.dart';
@@ -9,7 +11,7 @@ import '../services/wellness_service.dart'; // Import the wellness service
 class ChatbotScreen extends StatefulWidget {
   final String? userId; // Add userId parameter
   
-  const ChatbotScreen({super.key, this.userId = "vcordo11@msudenver.edu"}); // Default to our placeholder
+  const ChatbotScreen({super.key, this.userId = "johndoe@example.com"}); // Default to our placeholder
 
   @override
   State<ChatbotScreen> createState() => _ChatbotScreenState();
@@ -19,6 +21,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
+  final UserChatsService _userChatsService = UserChatsService();
+
   // Wellness service and data
   final WellnessService _wellnessService = WellnessService();
   bool _isLoadingWellness = true;
@@ -118,23 +122,67 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     super.dispose();
   }
 
-  void _handleSubmitted(String text) {
-    if (text.trim().isEmpty) return;
-    setState(() {
-      _messages.add({"text": text, "sender": "user"});
-      _textController.clear();
-    });
+void _handleSubmitted(String text) async {
+  if (text.trim().isEmpty) return;
+  
+  // Add user message to UI
+  setState(() {
+    _messages.add({"text": text, "sender": "user"});
+    _textController.clear();
+  });
+  
+  // Scroll to user message
+  Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
 
-    Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
-
-    // Simulate bot reply
-    Future.delayed(const Duration(milliseconds: 500), () {
+  try {
+    // Try to get the chat_id from the last bot message if it exists
+    int? currentChatId;
+    for (var i = _messages.length - 1; i >= 0; i--) {
+      if (_messages[i]["sender"] == "bot" && _messages[i].containsKey("chat_id")) {
+        currentChatId = _messages[i]["chat_id"];
+        break;
+      }
+    }
+    
+    // Send message and wait for response
+    final LLMMessage response = await _userChatsService.sendMessage(
+      text, 
+      Globals.username,
+      chat_id: currentChatId
+    );
+    
+    // Add bot response to UI
+    if (mounted) {
       setState(() {
-        _messages.add({"text": _generateBotReply(text), "sender": "bot"});
+  _messages.add({
+    "text": response.response,
+    "sender": "bot",
+    "chat_id": response.chat_id
+  });
+});
+      
+      // Scroll to bot's response
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
       });
-      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
-    });
+    }
+  } catch (error) {
+    print("Error sending message: $error");
+    
+    if (mounted) {
+      setState(() {
+        _messages.add({
+          "text": "Sorry, I couldn't process that message. Please try again.", 
+          "sender": "bot"
+        });
+      });
+      
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
+      });
+    }
   }
+}
 
   void _scrollToBottom() {
     if (_scrollController.hasClients) {

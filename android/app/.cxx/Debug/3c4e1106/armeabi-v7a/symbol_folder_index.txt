@@ -1,0 +1,1 @@
+/home/shockey-dev/fix-hackathon/lucent-app/build/app/intermediates/cxx/Debug/3c4e1106/obj/armeabi-v7a

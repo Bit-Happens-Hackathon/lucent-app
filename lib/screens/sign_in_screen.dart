@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lucent/global.dart';
 import 'dart:convert';
+
 import '../themes.dart';
 
 class sign_in_screen extends StatefulWidget {
@@ -14,7 +16,7 @@ class _sign_in_screenState extends State<sign_in_screen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final String baseUrl = 'http://10.6.131.67:8000';
+  final String baseUrl = 'http://172.17.0.1:8000';
 
   Future<void> _signIn() async {
     final url = Uri.parse('$baseUrl/users/signin');
@@ -32,6 +34,7 @@ class _sign_in_screenState extends State<sign_in_screen> {
           'Server response (${response.statusCode}): ${response.body}'); // <<< ADD THIS LINE
 
       if (response.statusCode == 201) {
+        Globals.username = _emailController.text;
         Navigator.pushReplacementNamed(context, '/chatbot');
       } else {
         _showErrorDialog('Sign in failed. Check your email and password.');

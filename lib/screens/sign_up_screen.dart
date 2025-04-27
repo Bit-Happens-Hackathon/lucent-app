@@ -19,7 +19,7 @@ class _sign_up_screenState extends State<sign_up_screen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  final String baseUrl = 'http://10.6.131.67:8000';
+  final String baseUrl = 'http://172.17.0.1:8000';
 
   Future<void> _signUp() async {
     if (_passwordController.text != _confirmPasswordController.text) {

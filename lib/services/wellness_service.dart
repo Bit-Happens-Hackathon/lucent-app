@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'services_config.dart';
@@ -120,6 +121,45 @@ class WellnessService {
       throw Exception('Failed to create wellness record: ${response.body}');
     }
   }
+
+  Future<Map<String, dynamic>> createWellness(String userId, Map<String, dynamic> wellnessData) async {
+  try {
+    final uri = Uri.parse('$baseUrl/wellness/');
+    // Prepare data for API request
+    final requestData = {
+      'user_id': userId,
+      'physical': wellnessData['physical'],
+      'financial': wellnessData['financial'],
+      'emotional': wellnessData['emotional'],
+      'spiritual': wellnessData['spiritual'],
+      'social': wellnessData['social'],
+      'environmental': wellnessData['environmental'],
+      'creative': wellnessData['creative'],
+    };
+    
+    if (kDebugMode) {
+      print('Creating wellness record: ${uri.toString()}');
+      print('Request data: $requestData');
+    }
+    
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(requestData),
+    );
+    
+    
+    final responseData = json.decode(response.body);
+    return responseData;
+    
+  } catch (e) {
+    if (kDebugMode) {
+      print('Exception during createWellness: $e');
+    }
+    throw Exception('Error creating wellness record: $e');
+  }
+}
+
 
   /// Get a specific wellness record by ID
   Future<WellnessRecord> getWellnessRecordById(int wellnessId) async {

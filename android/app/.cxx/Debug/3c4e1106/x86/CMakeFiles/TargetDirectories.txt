@@ -1,0 +1,2 @@
+/home/shockey-dev/fix-hackathon/lucent-app/android/app/.cxx/Debug/3c4e1106/x86/CMakeFiles/edit_cache.dir
+/home/shockey-dev/fix-hackathon/lucent-app/android/app/.cxx/Debug/3c4e1106/x86/CMakeFiles/rebuild_cache.dir
