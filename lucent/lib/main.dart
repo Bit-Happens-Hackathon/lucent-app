@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/profile_screen.dart';
 import 'screens/chatbot_screen.dart';
 import 'screens/resources_screen.dart';
+import 'screens/wellness_reflection_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const ChatbotScreen(),
+        '/': (context) => const WellnessReflectionScreen(),
         '/chatbot': (context) => const ChatbotScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/resources': (context) => const ResourcesScreen(),

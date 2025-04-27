@@ -251,7 +251,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           color: isUser
               ? AppColors.primaryBlue
               : AppColors
-                  .messageYellow, // chatbot text is yellow, users text is blue
+                  .primaryYellow, // chatbot text is yellow, users text is blue
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Text(
