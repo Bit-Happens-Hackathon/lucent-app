@@ -22,7 +22,7 @@ class DrawerMenu extends StatelessWidget {
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: AssetImage('assets/ceec.JPG'),
+                      image: AssetImage('assets/bansaiOffical.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -117,6 +117,9 @@ class DrawerMenu extends StatelessWidget {
             leading: const Icon(Icons.settings_outlined, color: Colors.white),
             onTap: () {
               Navigator.pop(context);
+              if (ModalRoute.of(context)?.settings.name != '/settings_screen') {
+                Navigator.pushNamed(context, '/settings_screen');
+              }
               // Later navigate to settings screen (not priority)
             },
           ),
