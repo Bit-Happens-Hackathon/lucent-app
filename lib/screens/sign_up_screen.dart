@@ -139,6 +139,7 @@ class sign_up_screen extends StatelessWidget {
 
 GestureDetector(
           onTap: () {
+            Navigator.pushReplacementNamed(context, '/sign_in_screen');
             print(_nameController);
             print(_passwordController);
             print(_schoolController);

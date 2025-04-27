@@ -22,7 +22,7 @@ class DrawerMenu extends StatelessWidget {
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: AssetImage('assets/ceec.JPG'),
+                      image: AssetImage('assets/bansaiOffical.png'),
                       fit: BoxFit.cover,
                     ),
                   ),
