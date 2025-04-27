@@ -1,0 +1,2 @@
+C:/Users/andre/HackaThon2/lucent-app/android/app/.cxx/Debug/5825s60l/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/andre/HackaThon2/lucent-app/android/app/.cxx/Debug/5825s60l/x86_64/CMakeFiles/rebuild_cache.dir

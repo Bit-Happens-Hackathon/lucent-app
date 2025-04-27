@@ -6,6 +6,7 @@ import 'screens/profile_screen.dart';
 import 'screens/chatbot_screen.dart';
 import 'screens/resources_screen.dart';
 import 'screens/wellness_reflection_screen.dart';
+import 'screens/settings_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/resources': (context) => const ResourcesScreen(),
         '/wellness_reflection_screen': (context) => const WellnessReflectionScreen(),
+        '/settings_screen': (context) => const SettingsScreen(),
       },
     );
   }
