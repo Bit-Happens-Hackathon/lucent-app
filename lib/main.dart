@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lucent/screens/authentication_screen.dart';
+import 'package:lucent/screens/sign_in_screen.dart';
+import 'package:lucent/screens/sign_up_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/chatbot_screen.dart';
 import 'screens/resources_screen.dart';
@@ -38,10 +41,14 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const WellnessReflectionScreen(),
+        '/': (context) => const authenticationScreen(),
+        '/authentication_screen': (context) => const authenticationScreen(),
+        '/sign_in_screen': (context) => const sign_in_screen(),
+        '/sign_up_screen': (context) => const sign_up_screen(),
         '/chatbot': (context) => const ChatbotScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/resources': (context) => const ResourcesScreen(),
+        '/wellness_reflection_screen': (context) => const WellnessReflectionScreen(),
       },
     );
   }
