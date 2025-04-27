@@ -137,9 +137,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   }
 
   Widget _buildInputArea() {
+    final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Container(
-      padding: EdgeInsets.fromLTRB(12.0, 8.0, 12.0,
-          MediaQuery.of(context).size.height * 0.05), // 10% bottom padding
+      padding: EdgeInsets.fromLTRB(
+        12.0,
+        8.0,
+        12.0,
+        isKeyboardVisible ? MediaQuery.of(context).size.height * 0.01 : MediaQuery.of(context).size.height * 0.05,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -153,13 +159,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 filled: true,
                 fillColor: Colors.grey.shade900,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24.0),
-                  borderSide: const BorderSide(color: AppColors.primaryBlue),
-                ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24.0),
-                  borderSide: const BorderSide(color: AppColors.primaryBlue),
+                  borderSide:
+                      const BorderSide(color: AppColors.primaryBlue, width: 2),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24.0),

@@ -20,9 +20,18 @@ class TopNavBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: CircleAvatar(
-            backgroundColor: Colors.grey.shade400,
-            child: const Icon(Icons.person, color: Colors.white), // Placeholder for user profile icon
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.black,
+                width: 1.5,
+              ),
+            ),
+            child: const CircleAvatar(
+              backgroundColor: AppColors.primaryBlue,
+              child: Icon(Icons.person, color: Colors.black),
+            ),
           ),
         ),
       ],
