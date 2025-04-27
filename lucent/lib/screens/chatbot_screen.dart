@@ -11,8 +11,8 @@ class ChatbotScreen extends StatefulWidget {
 
 class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _textController = TextEditingController();
-  final List<Map<String, dynamic>> _messages =
-      []; // simple text-based messages for now
+  final ScrollController _scrollController = ScrollController();
+  final List<Map<String, dynamic>> _messages = [];
   int? _selectedMoodIndex;
 
   void _handleSubmitted(String text) {
@@ -24,6 +24,50 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       });
       _textController.clear();
     });
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _scrollToBottom();
+    });
+
+    // Simulate bot reply
+    Future.delayed(const Duration(milliseconds: 500), () {
+      setState(() {
+        _messages.add({
+          "text": _generateBotReply(text),
+          "sender": "bot",
+        });
+      });
+
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _scrollToBottom();
+      });
+    });
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  String _generateBotReply(String userInput) {
+    List<String> botReplies = [
+      "I'm here for you!",
+      "Tell me more about that.",
+      "That's really interesting.",
+      "How are you feeling right now?",
+      "I'm listening!",
+      "Thank you for sharing that.",
+      "Let's work through this together.",
+      "Remember to be kind to yourself."
+    ];
+
+    botReplies.shuffle();
+    return botReplies.first;
   }
 
   @override
@@ -54,110 +98,122 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         ),
         body: Column(
           children: [
-            const SizedBox(height: 20),
-            Center(
-              child: Column(
-                children: [
-                  Container(
-                    width: 150,
-                    height: 150,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage('assets/ceec.JPG'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(
-                    color: Colors.grey,
-                    thickness: 1,
-                    indent: 32,
-                    endIndent: 32,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Placeholder words because Kade told me so!!!',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/resources');
-                    },
-                    child: const Text(
-                      'Resources',
-                      style: TextStyle(
-                        color: AppColors.primaryBlue,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Divider(
-                    color: Colors.grey,
-                    thickness: 1,
-                    indent: 32,
-                    endIndent: 32,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'How are you today?',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildMoodButton(0, '😢'),
-                      _buildMoodButton(1, '🙁'),
-                      _buildMoodButton(2, '😐'),
-                      _buildMoodButton(3, '🙂'),
-                      _buildMoodButton(4, '😊'),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
             Expanded(
-              child: ListView.builder(
+              child: SingleChildScrollView(
+                controller: _scrollController,
                 padding: const EdgeInsets.all(16.0),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  final isUser = message['sender'] == 'user';
-
-                  return Align(
-                    alignment:
-                        isUser ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4.0),
-                      padding: const EdgeInsets.all(12.0),
-                      decoration: BoxDecoration(
-                        color: isUser
-                            ? AppColors.primaryBlue
-                            : AppColors.messagePurple,
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Text(
-                        message['text'],
-                        style: const TextStyle(color: AppColors.background),
-                      ),
-                    ),
-                  );
-                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProfileHeaderSection(),
+                    const SizedBox(height: 16),
+                    ..._messages.map((message) => _buildMessageBubble(message)).toList(),
+                  ],
+                ),
               ),
             ),
             _buildInputArea(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileHeaderSection() {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        Center(
+          child: Column(
+            children: [
+              Container(
+                width: 150,
+                height: 150,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: AssetImage('assets/ceec.JPG'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Divider(
+                color: Colors.grey,
+                thickness: 1,
+                indent: 32,
+                endIndent: 32,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Placeholder words because Kade told me so!!!',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/resources');
+                },
+                child: const Text(
+                  'Resources',
+                  style: TextStyle(
+                    color: AppColors.primaryBlue,
+                    fontSize: 16,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Divider(
+                color: Colors.grey,
+                thickness: 1,
+                indent: 32,
+                endIndent: 32,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'How are you today?',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildMoodButton(0, '😢'),
+                  _buildMoodButton(1, '🙁'),
+                  _buildMoodButton(2, '😐'),
+                  _buildMoodButton(3, '🙂'),
+                  _buildMoodButton(4, '😊'),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMessageBubble(Map<String, dynamic> message) {
+    final bool isUser = message['sender'] == 'user';
+
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: isUser ? AppColors.primaryBlue : AppColors.messageBlue,
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Text(
+          message['text'],
+          style: const TextStyle(color: AppColors.background),
         ),
       ),
     );
