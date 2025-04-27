@@ -16,6 +16,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _animation;
+  final PageController _pageController = PageController();
 
   final Map<String, int> _wellnessStats = {
     'Financial': 75,
@@ -47,6 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   @override
   void dispose() {
     _controller.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -55,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return Dialog(
           backgroundColor: AppColors.background,
           shape: RoundedRectangleBorder(
@@ -75,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ),
                 ),
                 const SizedBox(height: 20),
-                Container(
+                SizedBox(
                   height: MediaQuery.of(context).size.width * 0.7,
                   width: MediaQuery.of(context).size.width * 0.7,
                   child: BonsaiTree.fromJson(jsonData),
@@ -100,7 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   String getMonthName(int monthIndex) {
-    final months = [
+    const months = [
       'January', 'February', 'March', 'April', 
       'May', 'June', 'July', 'August', 
       'September', 'October', 'November', 'December'
@@ -147,202 +149,172 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       backgroundColor: AppColors.background,
       appBar: const TopNavBar(),
       drawer: const DrawerMenu(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
+      body: PageView(
+        controller: _pageController,
+        scrollDirection: Axis.vertical,
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()), 
+        children: [
+          // Page 1: Wellness Stats
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
               ),
-            ),
-            const Center(
-              child: Text(
+              const Text(
                 'Profile Screen',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.width * 0.8,
-              padding: const EdgeInsets.all(16),
-              child: RadarChart(
-                RadarChartData(
-                  radarShape: RadarShape.circle,
-                  dataSets: [
-                    RadarDataSet(
-                      dataEntries: _wellnessStats.values.map((value) => RadarEntry(value: value.toDouble())).toList(),
-                      borderColor: AppColors.primaryGreen,
-                      fillColor: AppColors.primaryGreen.withOpacity(0.4),
-                      entryRadius: 3,
-                      borderWidth: 2,
-                    ),
-                  ],
-                  radarBackgroundColor: Colors.transparent,
-                  radarBorderData: const BorderSide(color: AppColors.white),
-                  titlePositionPercentageOffset: 0.28,
-                  titleTextStyle: const TextStyle(color: AppColors.white, fontSize: 14, fontWeight: FontWeight.w500),
-                  tickCount: 4,
-                  ticksTextStyle: const TextStyle(color: Colors.transparent, fontSize: 0),
-                  tickBorderData: BorderSide(color: AppColors.white.withOpacity(0.7), width: 1),
-                  gridBorderData: BorderSide(color: AppColors.white.withOpacity(0.8), width: 1.5),
-                  getTitle: (index, angle) {
-                    final categories = _wellnessStats.keys.toList();
-                    return RadarChartTitle(text: categories[index]);
-                  },
-                ),
-              ),
-            ),
-            const Divider(
-              color: AppColors.white,
-              thickness: 1,
-              indent: 32,
-              endIndent: 32,
-            ),
-            const SizedBox(height: 10),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Wellness Stats',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+              const SizedBox(height: 10),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.width * 0.8,
+                padding: const EdgeInsets.all(16),
+                child: RadarChart(
+                  RadarChartData(
+                    radarShape: RadarShape.circle,
+                    dataSets: [
+                      RadarDataSet(
+                        dataEntries: _wellnessStats.values.map((value) => RadarEntry(value: value.toDouble())).toList(),
+                        borderColor: AppColors.primaryGreen,
+                        fillColor: AppColors.primaryGreen.withOpacity(0.4),
+                        entryRadius: 3,
+                        borderWidth: 2,
+                      ),
+                    ],
+                    radarBackgroundColor: Colors.transparent,
+                    radarBorderData: const BorderSide(color: AppColors.white),
+                    titlePositionPercentageOffset: 0.28,
+                    titleTextStyle: const TextStyle(color: AppColors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                    tickCount: 4,
+                    ticksTextStyle: const TextStyle(color: Colors.transparent),
+                    tickBorderData: BorderSide(color: AppColors.white.withOpacity(0.7), width: 1),
+                    gridBorderData: BorderSide(color: AppColors.white.withOpacity(0.8), width: 1.5),
+                    getTitle: (index, angle) {
+                      final categories = _wellnessStats.keys.toList();
+                      return RadarChartTitle(text: categories[index]);
+                    },
                   ),
                 ),
-                SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_forward,
-                  color: AppColors.white,
-                  size: 20,
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 100,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                children: const [
-                  WellnessCard(category: 'Physical', percentage: 75),
-                  WellnessCard(category: 'Emotional', percentage: 82),
-                  WellnessCard(category: 'Spiritual', percentage: 64),
-                  WellnessCard(category: 'Financial', percentage: 88),
-                  WellnessCard(category: 'Environmental', percentage: 70),
-                  WellnessCard(category: 'Social', percentage: 90),
-                  WellnessCard(category: 'Creative', percentage: 80),
-                ],
               ),
-            ),
-            const SizedBox(height: 16),
-            SlideTransition(
-              position: _animation,
-              child: const Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.white,
-                size: 30,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            const Text(
-              'Your Bonsai',
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            
-            Container(
-              height: MediaQuery.of(context).size.width,
-              child: BonsaiTree.fromJson(
-                mockJson,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Center(
-              child: Text(
-                DateTime.now().month == 1 ? 'January' : 
-                DateTime.now().month == 2 ? 'February' : 
-                DateTime.now().month == 3 ? 'March' : 
-                DateTime.now().month == 4 ? 'April' : 
-                DateTime.now().month == 5 ? 'May' : 
-                DateTime.now().month == 6 ? 'June' : 
-                DateTime.now().month == 7 ? 'July' : 
-                DateTime.now().month == 8 ? 'August' : 
-                DateTime.now().month == 9 ? 'September' : 
-                DateTime.now().month == 10 ? 'October' : 
-                DateTime.now().month == 11 ? 'November' : 'December',
-                style: const TextStyle(
-                  color: AppColors.white,
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
+              const Divider(color: AppColors.white, thickness: 1, indent: 32, endIndent: 32),
+              const SizedBox(height: 10),
+              const Text('Wellness Stats', style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 100,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  children: const [
+                    WellnessCard(category: 'Physical', percentage: 75),
+                    WellnessCard(category: 'Emotional', percentage: 82),
+                    WellnessCard(category: 'Spiritual', percentage: 64),
+                    WellnessCard(category: 'Financial', percentage: 88),
+                    WellnessCard(category: 'Environmental', percentage: 70),
+                    WellnessCard(category: 'Social', percentage: 90),
+                    WellnessCard(category: 'Creative', percentage: 80),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              'Your Bonsai is a reflection of your growth and progress. Keep nurturing it!',
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 16,
-                fontStyle: FontStyle.italic,
+              const SizedBox(height: 16),
+              SlideTransition(
+                position: _animation,
+                child: IconButton(
+                  icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 30),
+                  onPressed: () => _pageController.nextPage(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  ),
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            const Text(
-              'Your Garden',
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
+            ],
+          ),
+          // Page 2: Bonsai Section
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Your Bonsai', style: TextStyle(color: AppColors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: MediaQuery.of(context).size.width * 0.8,
+                child: BonsaiTree.fromJson(mockJson),
               ),
-              textAlign: TextAlign.center,
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 3,
-                childAspectRatio: 0.8,
-                children: [
-                  for (int i = 1; i <= 12; i++)
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () => _showBonsaiModal(context, i, mockJson),
-                          child: Container(
-                            height: MediaQuery.of(context).size.width / 3,
-                            child: BonsaiTree.fromJson(mockJson),
+              const SizedBox(height: 24),
+              Center(
+                child: Text(
+                  getMonthName(DateTime.now().month),
+                  style: const TextStyle(color: AppColors.white, fontSize: 48, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  'Your Bonsai is a reflection of your growth and progress. Keep nurturing it!',
+                  style: TextStyle(color: AppColors.white, fontSize: 16, fontStyle: FontStyle.italic),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16),
+              SlideTransition(
+                position: _animation,
+                child: IconButton(
+                  icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 30),
+                  onPressed: () => _pageController.nextPage(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // Page 3: Garden Section
+            Column(
+            children: [
+              const SizedBox(height: 16),
+              const Text('Your Garden', style: TextStyle(color: AppColors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Expanded(
+                child: GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 3,
+                  childAspectRatio: 0.8,
+                  children: [
+                    for (int i = 1; i <= 12; i++)
+                      Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () => _showBonsaiModal(context, i, mockJson),
+                            child: SizedBox(
+                              height: MediaQuery.of(context).size.width / 3,
+                              child: BonsaiTree.fromJson(mockJson),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          getMonthName(i),
-                          style: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 12,
+                          const SizedBox(height: 8),
+                          Text(
+                            getMonthName(i),
+                            style: const TextStyle(
+                              color: AppColors.white,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                ],
+                        ],
+                      ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 32),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }
