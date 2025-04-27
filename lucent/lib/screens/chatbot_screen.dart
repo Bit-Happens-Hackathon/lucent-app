@@ -132,7 +132,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Placeholder words because Kade told me so!!!',
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: AppColors.white, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -160,7 +160,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               const Text(
                 'How are you today?',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
                 ),
@@ -219,8 +219,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           Expanded(
             child: TextField(
               controller: _textController,
-              style: const TextStyle(color: Colors.white),
-              cursorColor: Colors.white,
+              style: const TextStyle(color: AppColors.white),
+              cursorColor: AppColors.white,
               decoration: InputDecoration(
                 hintText: "Type your message...",
                 hintStyle: TextStyle(color: Colors.grey.shade400),
