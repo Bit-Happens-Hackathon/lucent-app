@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lucent/widgets/bonsai.dart';
 import '../themes.dart';
@@ -5,6 +6,8 @@ import '../widgets/top_navbar.dart';
 import '../widgets/drawer_menu.dart';
 import '../widgets/wellness_card.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../services/visits_service.dart';
+import 'dart:convert';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,6 +20,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   late AnimationController _controller;
   late Animation<Offset> _animation;
   final PageController _pageController = PageController();
+  final VisitsService _visitsService = VisitsService();
+  final int currentYear = DateTime.now().year; // Current year (2025)
+  
+  // Map to store visits by month
+  Map<int, List<DateTime>> _visitsByMonth = {};
 
   final Map<String, int> _wellnessStats = {
     'Financial': 75,
@@ -27,6 +35,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     'Physical': 80,
     'Emotional': 78,
   };
+
+  List<DateTime> _userVisits = [];
 
   @override
   void initState() {
@@ -43,6 +53,59 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       parent: _controller,
       curve: Curves.easeInOut,
     ));
+
+    // Initialize the map with empty lists for all months
+    for (int i = 1; i <= 12; i++) {
+      _visitsByMonth[i] = [];
+    }
+
+    _fetchUserVisits();
+  }
+
+  Future<void> _fetchUserVisits() async {
+    try {
+      final visits = await _visitsService.getUserVisits("vcordo11@msudenver.edu");
+      
+      if (kDebugMode) {
+        print('Raw fetched visits: $visits');
+      }
+      
+      // Process visits and organize by month for the current year
+      final Map<int, List<DateTime>> visitsByMonth = {};
+      for (int i = 1; i <= 12; i++) {
+        visitsByMonth[i] = [];
+      }
+      
+      for (final visit in visits) {
+        if (kDebugMode) {
+          print('Processing visit: $visit (year: ${visit.year}, current year: $currentYear)');
+        }
+        
+        // Only process visits from the current year
+        if (visit.year == currentYear) {
+          if (kDebugMode) {
+            print('Adding visit to month ${visit.month}: $visit');
+          }
+          visitsByMonth[visit.month]?.add(visit);
+        }
+      }
+      
+      setState(() {
+        _userVisits = visits;
+        _visitsByMonth = visitsByMonth;
+      });
+      
+      if (kDebugMode) {
+        print('User visits by month: $_visitsByMonth');
+        for (int i = 1; i <= 12; i++) {
+          print('Month $i visits: ${_visitsByMonth[i]?.length ?? 0}');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching user visits: $e');
+      }
+    }
   }
 
   @override
@@ -109,42 +172,20 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     ];
     return months[monthIndex - 1];
   }
+  
+  // Generate JSON for a specific month
+  String getMonthJson(int month) {
+    final visits = _visitsByMonth[month] ?? [];
+    if (kDebugMode) {
+      print('Generating JSON for month $month with ${visits.length} visits');
+    }
+    return jsonEncode({"visits": visits.map((date) => date.toIso8601String()).toList()});
+  }
 
   @override
   Widget build(BuildContext context) {
-      const mockJson = '{"visits": ['
-      '"2025-05-01T10:00:00Z",'
-      '"2025-05-02T12:00:00Z",'
-      '"2025-05-03T12:00:00Z",'
-      '"2025-05-04T12:00:00Z",'
-      '"2025-05-05T09:00:00Z",'
-      '"2025-05-06T09:00:00Z",'
-      '"2025-05-07T09:00:00Z",'
-      '"2025-05-08T09:00:00Z",'
-      '"2025-05-09T09:00:00Z",'
-      '"2025-05-10T14:00:00Z",'
-      '"2025-05-11T14:00:00Z",'
-      '"2025-05-12T14:00:00Z",'
-      '"2025-05-13T14:00:00Z",'
-      '"2025-05-14T14:00:00Z",'
-      '"2025-05-15T14:00:00Z",'
-      '"2025-05-16T14:00:00Z",'
-      '"2025-05-17T14:00:00Z",'
-      '"2025-05-18T14:00:00Z",'
-      '"2025-05-19T14:00:00Z",'
-      '"2025-05-20T14:00:00Z",'
-      '"2025-05-21T16:00:00Z",'
-      '"2025-05-22T08:00:00Z",'
-      '"2025-05-23T08:00:00Z",'
-      '"2025-05-24T08:00:00Z",'
-      '"2025-05-25T08:00:00Z",'
-      '"2025-05-26T08:00:00Z",'
-      '"2025-05-27T20:00:00Z",'
-      '"2025-05-28T20:00:00Z",'
-      '"2025-05-29T20:00:00Z",'
-      '"2025-05-30T20:00:00Z",'
-      '"2025-05-31T20:00:00Z"'
-    ']}';
+    final currentMonthJson = getMonthJson(DateTime.now().month);
+    
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const TopNavBar(),
@@ -244,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               const SizedBox(height: 20),
               SizedBox(
                 height: MediaQuery.of(context).size.width * 0.8,
-                child: BonsaiTree.fromJson(mockJson),
+                child: BonsaiTree.fromJson(currentMonthJson),
               ),
               const SizedBox(height: 24),
               Center(
@@ -292,10 +333,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       Column(
                         children: [
                           GestureDetector(
-                            onTap: () => _showBonsaiModal(context, i, mockJson),
+                            onTap: () => _showBonsaiModal(context, i, getMonthJson(i)),
                             child: SizedBox(
                               height: MediaQuery.of(context).size.width / 3,
-                              child: BonsaiTree.fromJson(mockJson),
+                              child: BonsaiTree.fromJson(getMonthJson(i)),
                             ),
                           ),
                           const SizedBox(height: 8),
