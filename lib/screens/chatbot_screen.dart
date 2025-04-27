@@ -4,9 +4,12 @@ import '../themes.dart';
 import '../widgets/top_navbar.dart';
 import '../widgets/drawer_menu.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../services/wellness_service.dart'; // Import the wellness service
 
 class ChatbotScreen extends StatefulWidget {
-  const ChatbotScreen({super.key});
+  final String? userId; // Add userId parameter
+  
+  const ChatbotScreen({super.key, this.userId = "vcordo11@msudenver.edu"}); // Default to our placeholder
 
   @override
   State<ChatbotScreen> createState() => _ChatbotScreenState();
@@ -16,15 +19,17 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
-  // Placeholder wellness data for the user
-  final Map<String, int> _wellnessStats = {
-    'Financial': 75,
-    'Creative': 85,
-    'Social': 65,
-    'Environmental': 70,
-    'Spiritual': 60,
-    'Physical': 80,
-    'Emotional': 78,
+  // Wellness service and data
+  final WellnessService _wellnessService = WellnessService();
+  bool _isLoadingWellness = true;
+  Map<String, int> _wellnessStats = {
+    'Financial': 0,
+    'Creative': 0,
+    'Social': 0,
+    'Environmental': 0,
+    'Spiritual': 0,
+    'Physical': 0,
+    'Emotional': 0,
   };
   int? _selectedMoodIndex;
 
@@ -36,6 +41,74 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+    _fetchWellnessData();
+  }
+
+  // Method to fetch wellness data from the API
+  Future<void> _fetchWellnessData() async {
+    if (widget.userId == null) {
+      setState(() {
+        _isLoadingWellness = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoadingWellness = true;
+    });
+
+    try {
+      // Get the most recent wellness record for the user
+      final List<WellnessRecord> records = await _wellnessService.getUserWellnessRecords(
+        userId: widget.userId!,
+        limit: 1, // Just get the most recent record
+      );
+
+      if (records.isNotEmpty) {
+        final latestRecord = records.first;
+        setState(() {
+          _wellnessStats = {
+            'Financial': latestRecord.financial,
+            'Creative': latestRecord.creative,
+            'Social': latestRecord.social,
+            'Environmental': latestRecord.environmental,
+            'Spiritual': latestRecord.spiritual,
+            'Physical': latestRecord.physical,
+            'Emotional': latestRecord.emotional,
+          };
+          _isLoadingWellness = false;
+        });
+      } else {
+        // If no records, use placeholder data for demonstration
+        setState(() {
+          _wellnessStats = {
+            'Financial': 75,
+            'Creative': 85,
+            'Social': 65,
+            'Environmental': 70,
+            'Spiritual': 60,
+            'Physical': 80, 
+            'Emotional': 78,
+          };
+          _isLoadingWellness = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching wellness data: $e');
+      // Fallback to placeholder data on error
+      setState(() {
+        _wellnessStats = {
+          'Financial': 75,
+          'Creative': 85,
+          'Social': 65,
+          'Environmental': 70,
+          'Spiritual': 60,
+          'Physical': 80,
+          'Emotional': 78,
+        };
+        _isLoadingWellness = false;
+      });
+    }
   }
 
   @override
@@ -156,47 +229,53 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             width: MediaQuery.of(context).size.width * 0.5,
             height: MediaQuery.of(context).size.width * 0.5,
             padding: const EdgeInsets.all(16),
-            child: RadarChart(
-              RadarChartData(
-                radarShape: RadarShape.circle,
-                dataSets: [
-                  RadarDataSet(
-                    dataEntries: _wellnessStats.values
-                        .map((value) => RadarEntry(value: value.toDouble()))
-                        .toList(),
-                    borderColor: AppColors.primaryGreen,
-                    fillColor: AppColors.primaryGreen.withOpacity(0.4),
-                    entryRadius: 3,
-                    borderWidth: 2,
+            child: _isLoadingWellness 
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGreen,
+                    ),
+                  )
+                : RadarChart(
+                    RadarChartData(
+                      radarShape: RadarShape.circle,
+                      dataSets: [
+                        RadarDataSet(
+                          dataEntries: _wellnessStats.values
+                              .map((value) => RadarEntry(value: value.toDouble()))
+                              .toList(),
+                          borderColor: AppColors.primaryGreen,
+                          fillColor: AppColors.primaryGreen.withOpacity(0.4),
+                          entryRadius: 3,
+                          borderWidth: 2,
+                        ),
+                      ],
+                      radarBackgroundColor: Colors.transparent,
+                      radarBorderData: const BorderSide(color: AppColors.white),
+                      titlePositionPercentageOffset: 0.28,
+                      titleTextStyle: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      tickCount: 4,
+                      ticksTextStyle: const TextStyle(
+                        color: Colors.transparent,
+                        fontSize: 0,
+                      ),
+                      tickBorderData: BorderSide(
+                        color: AppColors.white.withOpacity(0.7),
+                        width: 1,
+                      ),
+                      gridBorderData: BorderSide(
+                        color: AppColors.white.withOpacity(0.8),
+                        width: 1.5,
+                      ),
+                      getTitle: (index, angle) {
+                        final categories = _wellnessStats.keys.toList();
+                        return RadarChartTitle(text: categories[index]);
+                      },
+                    ),
                   ),
-                ],
-                radarBackgroundColor: Colors.transparent,
-                radarBorderData: const BorderSide(color: AppColors.white),
-                titlePositionPercentageOffset: 0.28,
-                titleTextStyle: const TextStyle(
-                  color: AppColors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w400,
-                ),
-                tickCount: 4,
-                ticksTextStyle: const TextStyle(
-                  color: Colors.transparent,
-                  fontSize: 0,
-                ),
-                tickBorderData: BorderSide(
-                  color: AppColors.white.withOpacity(0.7),
-                  width: 1,
-                ),
-                gridBorderData: BorderSide(
-                  color: AppColors.white.withOpacity(0.8),
-                  width: 1.5,
-                ),
-                getTitle: (index, angle) {
-                  final categories = _wellnessStats.keys.toList();
-                  return RadarChartTitle(text: categories[index]);
-                },
-              ),
-            ),
           ),
         ),
         const Divider(
