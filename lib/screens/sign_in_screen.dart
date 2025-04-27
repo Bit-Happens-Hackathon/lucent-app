@@ -32,7 +32,7 @@ class _sign_in_screenState extends State<sign_in_screen> {
           'Server response (${response.statusCode}): ${response.body}'); // <<< ADD THIS LINE
 
       if (response.statusCode == 201) {
-        Navigator.pushReplacementNamed(context, '/chatbot');
+        Navigator.pushReplacementNamed(context, '/wellness_reflection_screen');
       } else {
         _showErrorDialog('Sign in failed. Check your email and password.');
       }
@@ -63,6 +63,14 @@ class _sign_in_screenState extends State<sign_in_screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: Column(
         children: [
           const Center(

@@ -35,7 +35,7 @@ class _sign_up_screenState extends State<sign_up_screen> {
         body: jsonEncode({
           'name': _nameController.text,
           'email': _emailController.text,
-          'birthdate': _birthDateController.text,  // <-- lowercase d
+          'birthdate': _birthDateController.text,
           'school': _schoolController.text,
           'password': _passwordController.text,
           'confirm_password': _confirmPasswordController.text,
@@ -75,6 +75,14 @@ class _sign_up_screenState extends State<sign_up_screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SingleChildScrollView(
         // Add this wrapper
         child: Column(
