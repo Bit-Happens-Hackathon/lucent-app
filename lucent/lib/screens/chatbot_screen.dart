@@ -27,111 +27,116 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const TopNavBar(),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: const [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.grey),
-              child: Text('Menu', style: TextStyle(color: Colors.white)),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();  // This gets rid of keyboard when tapping outside
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: const TopNavBar(),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: const [
+              DrawerHeader(
+                decoration: BoxDecoration(color: Colors.grey),
+                child: Text('Menu', style: TextStyle(color: Colors.white)),
+              ),
+              ListTile(
+                title: Text('Profile'),
+              ),
+              ListTile(
+                title: Text('Settings'),
+              ),
+            ],
+          ),
+        ),
+        body: Column(
+          children: [
+            const SizedBox(height: 20),
+            Center(
+              child: Column(
+                children: [
+                  Container(
+                    width: 150,
+                    height: 150,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage('assets/ceec.JPG'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(
+                    color: Colors.grey,
+                    thickness: 1,
+                    indent: 32,
+                    endIndent: 32,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Placeholder words because Kade told me so!!!',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/resources');
+                    },
+                    child: const Text(
+                      'Resources',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontSize: 16,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Divider(
+                    color: Colors.grey,
+                    thickness: 1,
+                    indent: 32,
+                    endIndent: 32,
+                  ),
+                ],
+              ),
             ),
-            ListTile(
-              title: Text('Profile'),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  final isUser = message['sender'] == 'user';
+
+                  return Align(
+                    alignment:
+                        isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 4.0),
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: isUser
+                            ? AppColors.primaryBlue
+                            : AppColors.messagePurple,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Text(
+                        message['text'],
+                        style: const TextStyle(color: AppColors.background),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-            ListTile(
-              title: Text('Settings'),
-            ),
+            _buildInputArea(),
           ],
         ),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20), // Add some top padding
-          Center(
-            child: Column(
-              children: [
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: AssetImage('assets/ceec.JPG'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Divider(
-                  color: Colors.grey,
-                  thickness: 1,
-                  indent: 32,
-                  endIndent: 32,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Placeholder words because Kade told me so!!!',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/resources');
-                  },
-                  child: const Text(
-                    'Resources',
-                    style: TextStyle(
-                      color: AppColors.primaryBlue,
-                      fontSize: 16,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Divider(
-                  color: Colors.grey,
-                  thickness: 1,
-                  indent: 32,
-                  endIndent: 32,
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                final isUser = message['sender'] == 'user';
-
-                return Align(
-                  alignment:
-                      isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4.0),
-                    padding: const EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      color: isUser
-                          ? AppColors.primaryBlue
-                          : AppColors.messagePurple,
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Text(
-                      message['text'],
-                      style: const TextStyle(color: AppColors.background),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          _buildInputArea(),
-        ],
       ),
     );
   }
@@ -152,7 +157,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             child: TextField(
               controller: _textController,
               style: const TextStyle(color: Colors.white),
-              cursorColor: Colors.white, // Add this line
+              cursorColor: Colors.white,
               decoration: InputDecoration(
                 hintText: "Type your message...",
                 hintStyle: TextStyle(color: Colors.grey.shade400),
@@ -182,7 +187,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
             child: IconButton(
               icon: const Icon(Icons.mic, color: AppColors.background),
               onPressed: () {
-                // Add voice input handling later
+                // Add voice input handling heree
               },
             ),
           ),
