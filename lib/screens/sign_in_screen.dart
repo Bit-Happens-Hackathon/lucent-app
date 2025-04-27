@@ -30,8 +30,7 @@ class _sign_in_screenState extends State<sign_in_screen> {
         }),
       );
 
-      print(
-          'Server response (${response.statusCode}): ${response.body}'); // <<< ADD THIS LINE
+      print('Server response (${response.statusCode}): ${response.body}');
 
       if (response.statusCode == 201) {
         Globals.username = _emailController.text;
@@ -54,10 +53,33 @@ class _sign_in_screenState extends State<sign_in_screen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK',
-                style: TextStyle(color: AppColors.primaryBlue)),
+            child: const Text('OK', style: TextStyle(color: AppColors.primaryBlue)),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String hintText,
+      {bool obscureText = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        cursorColor: AppColors.primaryBlue,
+        decoration: InputDecoration(
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
+          ),
+          border: const OutlineInputBorder(),
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.white70),
+        ),
+        style: const TextStyle(color: Colors.white),
       ),
     );
   }
@@ -66,80 +88,64 @@ class _sign_in_screenState extends State<sign_in_screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40.0),
-              child: SizedBox(height: 40),
-            ),
-          ),
-          const Text(
-            'Sign In To Account',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 40,
-              color: Colors.white,
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-              child: TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white)),
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter your Email',
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
-                style: const TextStyle(color: Colors.white),
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            const Text(
+              'Sign In \nTo Account',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 40,
+                color: AppColors.primaryBlue,
               ),
             ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 20),
-              child: TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white)),
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter your Password',
-                  hintStyle: TextStyle(color: Colors.white),
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: _signIn,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 100, vertical: 20),
+            const SizedBox(height: 20),
+            _buildTextField(_emailController, 'Enter your email'),
+            _buildTextField(_passwordController, 'Enter your password', obscureText: true),
+            const SizedBox(height: 30),
+            GestureDetector(
+              onTap: _signIn,
               child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(12),
+                constraints: const BoxConstraints(
+                  maxWidth: 250,
                 ),
-                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryBlue.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
                 child: const Center(
                   child: Text(
                     'Sign In',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.background,
                       fontWeight: FontWeight.bold,
-                      fontSize: 30,
+                      fontSize: 22,
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 30),
+          ],
+        ),
       ),
     );
   }

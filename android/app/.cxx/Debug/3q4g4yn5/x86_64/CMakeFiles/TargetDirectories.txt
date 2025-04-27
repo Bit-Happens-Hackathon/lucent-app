@@ -1,0 +1,2 @@
+C:/Users/bjami/OneDrive/Desktop/hackathon/lucent-app/android/app/.cxx/Debug/3q4g4yn5/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/bjami/OneDrive/Desktop/hackathon/lucent-app/android/app/.cxx/Debug/3q4g4yn5/x86_64/CMakeFiles/rebuild_cache.dir
