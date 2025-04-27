@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../themes.dart';
 import '../widgets/top_navbar.dart';
+import '../widgets/drawer_menu.dart';
 
 class ResourcesScreen extends StatelessWidget {
   const ResourcesScreen({super.key});
@@ -10,6 +11,7 @@ class ResourcesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const TopNavBar(),
+      drawer: const DrawerMenu(), 
       body: Column(
         children: [
           Padding(

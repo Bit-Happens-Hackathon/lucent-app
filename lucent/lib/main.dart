@@ -38,8 +38,9 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const ChatbotScreen(),
-        '/resources': (context) => const ResourcesScreen(),
+        '/chatbot': (context) => const ChatbotScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/resources': (context) => const ResourcesScreen(),
       },
     );
   }
